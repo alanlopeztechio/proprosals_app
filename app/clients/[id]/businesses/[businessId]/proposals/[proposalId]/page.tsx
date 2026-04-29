@@ -8,6 +8,7 @@ import { ArrowLeft, Download, Send, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { TableSkeleton } from '@/components/TableSkeleton';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Borrador',
@@ -113,24 +114,24 @@ export default function ProposalViewPage() {
       {/* Main Content */}
       <div className="flex-1 p-6 max-w-5xl mx-auto w-full space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-border">
+          <Card className="bg-linear-to-b p-4 rounded-lg border border-border">
             <p className="text-sm text-muted-foreground mb-1">Monto Total</p>
             <p className="text-2xl font-bold">
               {business.currency || '$'}
               {proposal.totalAmount.toLocaleString()}
             </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border border-border">
+          </Card>
+          <Card className="bg-linear-to-b p-4 rounded-lg border border-border">
             <p className="text-sm text-muted-foreground mb-1">Vencimiento</p>
             <p className="text-lg font-semibold">
               {proposal.validUntil
                 ? new Date(proposal.validUntil).toLocaleDateString('es-MX')
                 : '-'}
             </p>
-          </div>
+          </Card>
         </div>
 
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-linear-to-b rounded-lg border border-border overflow-hidden">
           <div className="p-6 border-b border-border bg-muted/20 flex justify-between items-center">
             <h3 className="font-semibold text-lg">Contenido de la Propuesta</h3>
           </div>
@@ -146,7 +147,7 @@ export default function ProposalViewPage() {
         </div>
 
         {proposal.terms && (
-          <div className="bg-white rounded-lg border border-border p-6 mt-6">
+          <div className="bg-linear-to-b rounded-lg border border-border p-6 mt-6">
             <h3 className="font-semibold mb-2">Términos y Condiciones</h3>
             <p className="text-sm whitespace-pre-wrap text-muted-foreground">
               {proposal.terms}

@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -49,7 +50,6 @@ export default function BusinessDetailsPage() {
   const params = useParams();
   const clientId = params.id as string;
   const businessId = params.businessId as string;
-  const [activeTab, setActiveTab] = useState('resumen');
 
   const business = useQuery(api.queries.getBusinessById, {
     id: businessId as any,
@@ -256,142 +256,109 @@ export default function BusinessDetailsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-background rounded-lg border border-border overflow-hidden">
-          <div className="border-b border-border">
-            <div className="flex flex-wrap">
-              {[
-                { id: 'resumen', label: 'Resumen' },
-                { id: 'propuestas', label: 'Propuestas' },
-                { id: 'actividad', label: 'Actividad' },
-                { id: 'notas', label: 'Notas' },
-                { id: 'archivos', label: 'Archivos' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-3 text-sm font-medium transition ${
-                    activeTab === tab.id
-                      ? 'text-foreground border-b-2 border-primary'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
+        <Tabs defaultValue="resumen" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="resumen">Resumen</TabsTrigger>
+            <TabsTrigger value="propuestas">Propuestas</TabsTrigger>
+            <TabsTrigger value="actividad">Actividad</TabsTrigger>
+            <TabsTrigger value="notas">Notas</TabsTrigger>
+            <TabsTrigger value="archivos">Archivos</TabsTrigger>
+          </TabsList>
 
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'resumen' && (
-              <div className="space-y-4">
+          <TabsContent value="resumen" className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+                Información del Cliente
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-                    Información del Cliente
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Nombre</p>
-                      <p className="font-medium">{client.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Empresa</p>
-                      <p className="font-medium">{client.company || '-'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{client.email || '-'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Teléfono</p>
-                      <p className="font-medium">{client.phone || '-'}</p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-muted-foreground">Nombre</p>
+                  <p className="font-medium">{client.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Empresa</p>
+                  <p className="font-medium">{client.company || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium">{client.email || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Teléfono</p>
+                  <p className="font-medium">{client.phone || '-'}</p>
                 </div>
               </div>
-            )}
+            </div>
+          </TabsContent>
 
-            {activeTab === 'propuestas' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Propuestas</h3>
-                  <Button size="sm">Crear Propuesta</Button>
-                </div>
-                {proposals && proposals.length > 0 ? (
-                  <div className="space-y-3">
-                    {proposals.map((proposal) => (
-                      <Link
-                        href={`/clients/${client._id}/businesses/${business._id}/proposals/${proposal._id}`}
-                        key={proposal._id}
-                      >
-                        <div className="p-4 border border-border rounded-lg hover:border-primary/50 transition cursor-pointer bg-card hover:shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold">
-                                  {proposal.title}
-                                </h4>
-                                <Badge variant="secondary" className="text-xs">
-                                  {proposal.proposalNumber}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                Vence:{' '}
-                                {proposal.validUntil
-                                  ? new Date(
-                                      proposal.validUntil,
-                                    ).toLocaleDateString('es-MX')
-                                  : 'Sin fecha'}
-                              </p>
-                            </div>
-                            <div className="text-right flex items-center gap-3">
-                              <p className="font-semibold text-lg">
-                                {business.currency || '$'}
-                                {proposal.totalAmount?.toLocaleString() || 0}
-                              </p>
-                              <Badge variant="outline" className="capitalize">
-                                {proposal.status}
-                              </Badge>
-                            </div>
+          <TabsContent value="propuestas" className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Propuestas</h3>
+              <Button size="sm">Crear Propuesta</Button>
+            </div>
+            {proposals && proposals.length > 0 ? (
+              <div className="space-y-3">
+                {proposals.map((proposal) => (
+                  <Link
+                    href={`/clients/${client._id}/businesses/${business._id}/proposals/${proposal._id}`}
+                    key={proposal._id}
+                  >
+                    <div className="p-4 border border-border rounded-lg hover:border-primary/50 transition cursor-pointer bg-card hover:shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold">{proposal.title}</h4>
+                            <Badge variant="secondary" className="text-xs">
+                              {proposal.proposalNumber}
+                            </Badge>
                           </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Vence:{' '}
+                            {proposal.validUntil
+                              ? new Date(
+                                  proposal.validUntil,
+                                ).toLocaleDateString('es-MX')
+                              : 'Sin fecha'}
+                          </p>
                         </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
-                    <p className="text-muted-foreground">
-                      No hay propuestas para este negocio
-                    </p>
-                  </div>
-                )}
+                        <div className="text-right flex items-center gap-3">
+                          <p className="font-semibold text-lg">
+                            {business.currency || '$'}
+                            {proposal.totalAmount?.toLocaleString() || 0}
+                          </p>
+                          <Badge variant="outline" className="capitalize">
+                            {proposal.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            )}
-
-            {activeTab === 'actividad' && (
-              <div className="text-center py-12">
-                <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+            ) : (
+              <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
                 <p className="text-muted-foreground">
-                  No hay actividades registradas
+                  No hay propuestas para este negocio
                 </p>
               </div>
             )}
+          </TabsContent>
 
-            {activeTab === 'notas' && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No hay notas agregadas</p>
-              </div>
-            )}
+          <TabsContent value="actividad" className="text-center py-12">
+            <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+            <p className="text-muted-foreground">
+              No hay actividades registradas
+            </p>
+          </TabsContent>
 
-            {activeTab === 'archivos' && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">
-                  No hay archivos adjuntos
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+          <TabsContent value="notas" className="text-center py-12">
+            <p className="text-muted-foreground">No hay notas agregadas</p>
+          </TabsContent>
+
+          <TabsContent value="archivos" className="text-center py-12">
+            <p className="text-muted-foreground">No hay archivos adjuntos</p>
+          </TabsContent>
+        </Tabs>
 
         {/* Información del Negocio */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

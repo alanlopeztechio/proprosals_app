@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.72",
+    "@ai-sdk/react": "^3.0.172",
     "@base-ui/react": "^1.4.1",
     "ag-grid-community": "^35.2.1",
     "ag-grid-react": "^35.2.1",
+    "ai": "^6.0.170",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

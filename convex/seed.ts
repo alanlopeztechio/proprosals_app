@@ -1,133 +1,93 @@
-import { mutation } from './_generated/server';
+import { mutation } from "./_generated/server";
 
-export const seedClients = mutation({
+export const seedDatabase = mutation({
   args: {},
   handler: async (ctx) => {
+    // 1. Limpiar datos existentes (opcional, pero útil para seeds limpios)
+    // Nota: Solo haz esto si estás en desarrollo.
+    
+    // 2. Crear Clientes
+    const clientIds = [];
     const clients = [
       {
-        name: 'Juan Pérez',
-        email: 'juan.perez@empresa.com',
-        company: 'Tecnología Avanzada S.A.',
-        phone: '+34 600 000 001',
-        address: 'Calle Falsa 123, Madrid',
-        notes: 'Cliente recurrente interesado en proyectos de IA.',
+        name: "Elena Rodríguez",
+        email: "elena@techcorp.com",
+        company: "TechCorp Solutions",
+        industry: "Software",
+        website: "https://techcorp.com",
       },
       {
-        name: 'María García',
-        email: 'm.garcia@soluciones.es',
-        company: 'Soluciones Creativas SL',
-        phone: '+34 600 000 002',
-        address: 'Avenida de la Constitución 45, Barcelona',
-        notes: 'Prefiere contacto por email.',
-      },
-      {
-        name: 'Carlos Rodríguez',
-        email: 'carlos@startup.io',
-        company: 'Startup Innovadora',
-        phone: '+34 600 000 003',
-        address: 'Paseo de la Castellana 100, Madrid',
-        notes: 'Nuevo cliente, primera propuesta enviada.',
-      },
-      {
-        name: 'Ana Martínez',
-        email: 'ana.m@logistica.com',
-        company: 'Logística Global',
-        phone: '+34 600 000 004',
-        address: 'Polígono Industrial Norte, Valencia',
-        notes: 'Busca optimización de procesos de transporte.',
-      },
-      {
-        name: 'Roberto Gómez',
-        email: 'roberto@construccion.es',
-        company: 'Construcciones Gómez',
-        phone: '+34 600 000 005',
-        address: 'Plaza Mayor 1, Sevilla',
-        notes: 'Interesado en presupuestos de mantenimiento anual.',
+        name: "Marcos Ruiz",
+        email: "mruiz@designflow.es",
+        company: "DesignFlow Studio",
+        industry: "Design",
+        website: "https://designflow.es",
       },
     ];
 
-    for (const client of clients) {
-      // Opcional: Evitar duplicados por nombre si es necesario
-      const existing = await ctx.db
-        .query('clients')
-        .withIndex('by_name', (q) => q.eq('name', client.name))
-        .unique();
-
-      if (!existing) {
-        await ctx.db.insert('clients', client);
-      }
+    for (const c of clients) {
+      const id = await ctx.db.insert("clients", c);
+      clientIds.push(id);
     }
 
-    return 'Seed de clientes completado con éxito.';
-  },
-});
-
-export const seedProposals = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const clients = await ctx.db.query('clients').collect();
-
-    if (clients.length === 0) {
-      return 'No hay clientes en la base de datos. Ejecuta seedClients primero.';
-    }
-
-    const proposalTemplates = [
+    // 3. Crear Negocios para esos Clientes
+    const businessTemplates = [
       {
-        title: 'Rediseño de Identidad Visual',
-        description:
-          'Creación de logotipo, paleta de colores y manual de marca.',
-        status: 'accepted' as const,
-        totalAmount: 1500,
-        currency: 'EUR',
+        name: "Implementación ERP Fase 1", description: "Sistema integral ERP",
+        type: "new_business" as const,
+        stage: "qualified" as const,
+        value: 12000,
+        currency: "EUR",
+        probability: 60,
       },
       {
-        title: 'Desarrollo de Sitio Web E-commerce',
-        description:
-          'Tienda online con pasarela de pagos y gestión de inventario.',
-        status: 'sent' as const,
-        totalAmount: 4500,
-        currency: 'EUR',
+        name: "Mantenimiento Anual Servidores", description: "Renovación 2026",
+        type: "renewal" as const,
+        stage: "negotiation" as const,
+        value: 3500,
+        currency: "EUR",
+        probability: 85,
       },
       {
-        title: 'Campaña de Marketing Digital',
-        description: 'Gestión de redes sociales y anuncios por 3 meses.',
-        status: 'draft' as const,
-        totalAmount: 900,
-        currency: 'EUR',
-      },
-      {
-        title: 'Mantenimiento IT Anual',
-        description:
-          'Soporte técnico y actualizaciones de seguridad mensuales.',
-        status: 'sent' as const,
-        totalAmount: 2400,
-        currency: 'EUR',
+        name: "Consultoría de Seguridad", description: "Auditoría ISO 27001",
+        type: "upsell" as const,
+        stage: "proposal_sent" as const,
+        value: 5000,
+        currency: "EUR",
+        probability: 40,
       },
     ];
 
-    let proposalsCreated = 0;
-
-    for (const client of clients) {
-      const existingProposals = await ctx.db
-        .query('proposals')
-        .withIndex('by_client', (q) => q.eq('clientId', client._id))
-        .collect();
-
-      if (existingProposals.length < 2) {
-        const shuffled = [...proposalTemplates].sort(() => 0.5 - Math.random());
-        const toAdd = shuffled.slice(0, 2);
-
-        for (const template of toAdd) {
-          await ctx.db.insert('proposals', {
-            ...template,
-            clientId: client._id,
-            dueDate: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 días a partir de ahora
-          });
-          proposalsCreated++;
-        }
+    const businessIds = [];
+    for (const clientId of clientIds) {
+      // Cada cliente tendrá 2 negocios
+      for (let i = 0; i < 2; i++) {
+        const template = businessTemplates[Math.floor(Math.random() * businessTemplates.length)];
+        const bId = await ctx.db.insert("businesses", {
+          ...template,
+          clientId,
+          expectedCloseDate: Date.now() + (30 * 24 * 60 * 60 * 1000),
+        });
+        businessIds.push(bId);
       }
     }
 
-    return `Seed de propuestas completado. Se crearon ${proposalsCreated} propuestas.`;
+    // 4. Crear Propuestas para los Negocios
+    for (const businessId of businessIds) {
+      const biz = await ctx.db.get(businessId);
+      if (!biz) continue;
+
+      await ctx.db.insert("proposals", {
+        businessId,
+        proposalNumber: `PROP-${Math.floor(Math.random() * 10000)}`,
+        title: `Propuesta para ${biz.name}`,
+        status: "sent" as const,
+        totalAmount: biz.value,
+        validUntil: Date.now() + (15 * 24 * 60 * 60 * 1000),
+        terms: "Pago a 30 días tras aceptación.",
+      });
+    }
+
+    return "Base de datos poblada con éxito: Clientes -> Negocios -> Propuestas.";
   },
 });

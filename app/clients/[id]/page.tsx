@@ -4,20 +4,39 @@ import { useParams } from 'next/navigation';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { TableSkeleton } from '@/components/TableSkeleton';
+
+const STATUS_LABELS: Record<string, string> = {
+  discovery: 'Descubrimiento',
+  qualified: 'Calificado',
+  proposal_sent: 'Propuesta Enviada',
+  negotiation: 'Negociación',
+  closed_won: 'Cerrado Ganado',
+  closed_lost: 'Cerrado Perdido',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  discovery: 'bg-gray-100 text-gray-800 border-gray-200',
+  qualified: 'bg-blue-100 text-blue-800 border-blue-200',
+  proposal_sent: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+  negotiation: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  closed_won: 'bg-green-100 text-green-800 border-green-200',
+  closed_lost: 'bg-red-100 text-red-800 border-red-200',
+};
 
 export default function ClientDetailsPage() {
   const params = useParams();
   const clientId = params.id as string;
 
   const client = useQuery(api.queries.getClientById, { id: clientId as any });
-  const proposals = useQuery(api.queries.getProposalsByClient, {
+  const businesses = useQuery(api.queries.getBusinessesByClient, {
     clientId: clientId as any,
   });
 
-  if (client === undefined || proposals === undefined) {
+  if (client === undefined || businesses === undefined) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <div className="flex items-center gap-4 p-6 border-b border-border">
@@ -111,41 +130,59 @@ export default function ClientDetailsPage() {
         )}
 
         <div>
-          <h2 className="text-2xl font-bold mb-4">Propuestas</h2>
-          {proposals && proposals.length > 0 ? (
-            <div className="space-y-2">
-              {proposals.map((proposal) => (
-                <div
-                  key={proposal._id}
-                  className="p-4 border border-border rounded-lg hover:bg-muted/50 transition"
+          <h2 className="text-2xl font-bold mb-4">Negocios</h2>
+          {businesses && businesses.length > 0 ? (
+            <div className="flex flex-col gap-8">
+              {businesses.map((business) => (
+                <Link
+                  href={`/clients/${client._id}/businesses/${business._id}`}
+                  key={business._id}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{proposal.title}</h3>
-                      {proposal.description && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {proposal.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      {proposal.totalAmount && (
-                        <p className="font-semibold">
-                          {proposal.currency || '$'}
-                          {proposal.totalAmount}
-                        </p>
-                      )}
-                      <span className="inline-block mt-2 text-xs px-2 py-1 bg-muted rounded-full">
-                        {proposal.status}
-                      </span>
+                  <div className="p-4 border border-border rounded-lg hover:bg-muted/50 transition cursor-pointer">
+                    <div className="flex items-center justify-between px-4 ">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-[#F59F0A] cursor-pointer hover:underline">
+                          {business.name}
+                        </h3>
+                        {business.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {business.description.length > 100
+                              ? `${business.description.substring(0, 100)}...`
+                              : business.description}
+                          </p>
+                        )}
+                        <div className="mt-2 flex items-center gap-2">
+                          <Badge variant="outline" className="capitalize">
+                            {business.type.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right ml-4 flex flex-col items-end gap-2">
+                        {business.value !== undefined && (
+                          <p className="font-semibold text-lg">
+                            {business.currency || '$'}
+                            {business.value.toLocaleString()}
+                          </p>
+                        )}
+                        <Badge
+                          className={`inline-block ${STATUS_COLORS[business.stage] || 'bg-gray-100 text-gray-800'}`}
+                        >
+                          {STATUS_LABELS[business.stage] || business.stage}
+                        </Badge>
+                        {business.probability !== undefined && (
+                          <span className="text-xs text-muted-foreground">
+                            Probabilidad: {business.probability}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
             <p className="text-muted-foreground">
-              No hay propuestas para este cliente
+              No hay negocios para este cliente
             </p>
           )}
         </div>

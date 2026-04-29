@@ -76,7 +76,7 @@ export function CreateClientDialog({
     try {
       await createClient({
         name: formData.name,
-        email: formData.email || undefined,
+        email: formData.email,
         company: formData.company || undefined,
         phone: formData.phone || undefined,
         address: formData.address || undefined,

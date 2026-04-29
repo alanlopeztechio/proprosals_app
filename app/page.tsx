@@ -1,15 +1,12 @@
 'use client';
-import { ThemeToggle } from '@/components/ThemeToggle';
-import { Card, CardContent } from '@/components/ui/card';
-import { ProposalTable } from '@/components/ClientTable';
+
 import { TableSkeleton } from '@/components/TableSkeleton';
 import { CreateClientDialog } from '@/components/dialogs/CreateClientDialog';
-import { Circle, Plus } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+
 import { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { ClientTable } from '@/components/ClientTable';
 
 export default function Home() {
   const [showDialog, setShowDialog] = useState(false);
@@ -37,7 +34,7 @@ export default function Home() {
         ) : (
           <div className="w-full h-full">
             <h2 className="text-xl font-semibold mb-4">Clientes</h2>
-            <ProposalTable clients={contacts} />
+            <ClientTable clients={contacts} />
           </div>
         )}
       </main>

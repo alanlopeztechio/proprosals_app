@@ -91,11 +91,11 @@ const ActionCell = (props: any) => {
   );
 };
 
-interface ProposalTableProps {
+interface ClientTableProps {
   clients: Doc<'clients'>[];
 }
 
-export function ProposalTable({ clients }: ProposalTableProps) {
+export function ClientTable({ clients }: ClientTableProps) {
   const [gridApi, setGridApi] = React.useState<GridApi | null>(null);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const deleteClient = useMutation(api.mutations.deleteClient);

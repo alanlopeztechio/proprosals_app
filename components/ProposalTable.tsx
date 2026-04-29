@@ -111,7 +111,7 @@ export function ProposalTable({ clients }: ProposalTableProps) {
       {
         field: 'title',
         headerName: 'Title',
-        width: 200,
+        width: 140,
         sortable: true,
         cellClass: 'text-sm',
         // cellRenderer: (props: any) => <NameCell data={props.data} />,

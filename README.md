@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Proposal Management App
 
-## Getting Started
+A modern, full-stack application for managing clients and project proposals, built with **Next.js**, **Convex**, and **Tailwind CSS**.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Client Management**: Track client information including company details, contact info, and custom notes.
+- **Proposal Tracking**: Create and manage project proposals with status tracking (Draft, Sent, Accepted, Rejected, Cancelled).
+- **Real-time Database**: Powered by Convex for instant updates and reactive queries.
+- **Data Table**: Interactive data presentation using AG Grid for efficient sorting and filtering.
+- **Dark Mode**: Built-in theme support for a comfortable user experience.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 15, React, AG Grid, Lucide React, Radix UI.
+- **Backend**: Convex (Real-time database and serverless functions).
+- **Styling**: Tailwind CSS, Shadcn UI.
+- **Language**: TypeScript.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏁 Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js installed.
+- pnpm (recommended) or npm.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+3. Set up Convex:
+   ```bash
+   npx convex dev
+   ```
 
-## Deploy on Vercel
+### Seeding Data
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To populate the database with sample clients and proposals:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Run the client seed:
+   ```bash
+   npx convex run seed:seedClients
+   ```
+2. Run the proposal seed:
+   ```bash
+   npx convex run seed:seedProposals
+   ```
+
+## 📄 License
+
+This project is licensed under the MIT License.

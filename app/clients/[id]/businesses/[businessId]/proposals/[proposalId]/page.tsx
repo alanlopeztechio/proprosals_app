@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, Send, FileText, X, Check } from 'lucide-react';
@@ -82,6 +82,8 @@ export default function ProposalViewPage() {
 
   const updateProposal = useMutation(api.mutations.updateProposal);
 
+  const uploadProporsalFile = useAction(api.actions.uploadFile);
+
   const handleEditClick = useCallback(() => {
     if (proposal) {
       setIsEditing(true);
@@ -92,11 +94,17 @@ export default function ProposalViewPage() {
     if (!proposal) return;
     setIsSaving(true);
     try {
-      await updateProposal({
-        id: proposal._id,
-        content: editedContent,
+      await uploadProporsalFile({
+        file: new TextEncoder().encode(editedContent).buffer,
+        filename: `proposal-${proposal._id}.md`,
+        contentType: 'text/markdown',
+        idProporsal: proposal._id,
       });
-      setIsEditing(false);
+      // await updateProposal({
+      //   id: proposal._id,
+      //   content: editedContent,
+      // });
+      // setIsEditing(false);
     } catch (error) {
       console.error('Error updating proposal:', error);
     } finally {

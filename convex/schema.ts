@@ -16,7 +16,7 @@ export default defineSchema({
   businesses: defineTable({
     clientId: v.id('clients'),
     name: v.string(), // e.g., "Rediseño Web 2024"
-    description: v.string(),
+    description: v.optional(v.string()),
     type: v.union(
       v.literal('new_business'),
       v.literal('upsell'),
@@ -52,5 +52,6 @@ export default defineSchema({
     validUntil: v.number(), // Timestamp
     content: v.optional(v.string()), // Markdown o JSON de la propuesta
     terms: v.optional(v.string()),
+    url: v.optional(v.string()),
   }).index('by_business', ['businessId']),
 });

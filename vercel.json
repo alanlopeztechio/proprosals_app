@@ -1,0 +1,14 @@
+{
+  "env": {
+    "NEXT_PUBLIC_CONVEX_URL": "https://wandering-rhinoceros-503.convex.cloud",
+    "NEXT_PUBLIC_CONVEX_SITE_URL": "https://wandering-rhinoceros-503.convex.site",
+    "CONVEX_DEPLOYMENT": "dev:wandering-rhinoceros-503"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_CONVEX_URL": "https://wandering-rhinoceros-503.convex.cloud",
+      "NEXT_PUBLIC_CONVEX_SITE_URL": "https://wandering-rhinoceros-503.convex.site",
+      "CONVEX_DEPLOYMENT": "dev:wandering-rhinoceros-503"
+    }
+  }
+}

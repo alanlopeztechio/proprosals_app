@@ -1,15 +1,18 @@
 'use client';
 
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Send, FileText } from 'lucide-react';
+import { ArrowLeft, Download, Send, FileText, X, Check } from 'lucide-react';
 import { TableSkeleton } from '@/components/TableSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ChatSidebar from '@/components/ChatSidebar';
+import { NoteEditor } from '@/components/editor/NoteEditor';
+import { useState, useCallback } from 'react';
+import { marked } from 'marked';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Borrador',
@@ -29,11 +32,46 @@ const STATUS_COLORS: Record<string, string> = {
   expired: 'bg-yellow-100 text-yellow-800',
 };
 
+/**
+ * Detects whether a string is raw Markdown (vs HTML already).
+ */
+function looksLikeMarkdown(text: string): boolean {
+  if (!text || text.startsWith('<')) return false;
+  // More precise markdown detection
+  return /^#{1,6}\s|^\*\s|^-\s|^\d+\.\s|\*\*.*?\*\*|__.*?__|\*\*.*?\*\*|^>\s|```/m.test(
+    text,
+  );
+}
+
+/**
+ * Converts content (markdown or HTML) to HTML for display.
+ */
+function ensureHtmlForDisplay(text: string): string {
+  if (!text) return '';
+
+  try {
+    if (looksLikeMarkdown(text)) {
+      // Convert markdown to HTML
+      const html = marked.parse(text, { async: false }) as string;
+      return html;
+    }
+    // Already HTML
+    return text;
+  } catch (error) {
+    console.error('Error converting content:', error);
+    return text;
+  }
+}
+
 export default function ProposalViewPage() {
   const params = useParams();
   const clientId = params.id as string;
   const businessId = params.businessId as string;
   const proposalId = params.proposalId as string;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const proposal = useQuery(api.queries.getProposalById, {
     id: proposalId as any,
@@ -41,6 +79,35 @@ export default function ProposalViewPage() {
   const business = useQuery(api.queries.getBusinessById, {
     id: businessId as any,
   });
+
+  const updateProposal = useMutation(api.mutations.updateProposal);
+
+  const handleEditClick = useCallback(() => {
+    if (proposal) {
+      setIsEditing(true);
+    }
+  }, [proposal]);
+
+  const handleSave = useCallback(async () => {
+    if (!proposal) return;
+    setIsSaving(true);
+    try {
+      await updateProposal({
+        id: proposal._id,
+        content: editedContent,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating proposal:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [proposal, editedContent, updateProposal]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    setEditedContent('');
+  }, []);
 
   if (proposal === undefined || business === undefined) {
     return (
@@ -110,14 +177,40 @@ export default function ProposalViewPage() {
               <Badge className={STATUS_COLORS[proposal.status] || ''}>
                 {STATUS_LABELS[proposal.status] || proposal.status}
               </Badge>
-              <Button variant="outline" size="sm">
-                <FileText className="h-4 w-4 mr-2" />
-                Editar Documento
-              </Button>
-              <Button size="sm">
-                <Send className="h-4 w-4 mr-2" />
-                Enviar
-              </Button>
+              {/* {!isEditing && (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleEditClick}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Editar Documento
+                  </Button>
+                  <Button size="sm">
+                    <Send className="h-4 w-4 mr-2" />
+                    Enviar
+                  </Button>
+                </>
+              )}
+              {isEditing && (
+                <>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    {isSaving ? 'Guardando...' : 'Guardar'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancelar
+                  </Button>
+                </>
+              )} */}
             </div>
           </div>
         </div>
@@ -141,20 +234,83 @@ export default function ProposalViewPage() {
             </Card>
           </div>
 
-          <div className="bg-linear-to-b rounded-lg border border-border overflow-hidden">
+          <div className="bg-linear-to-b rounded-lg border bg-background shadow-sm focus-within:border-ring focus-within:ring-1 focus-within:ring-ring transition-colors overflow-hidden">
             <div className="p-6 border-b border-border bg-muted/20 flex justify-between items-center">
               <h3 className="font-semibold text-lg">
                 Contenido de la Propuesta
               </h3>
+              <div className="flex items-center gap-4">
+                {!isEditing && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditClick}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Editar Documento
+                    </Button>
+                    <Button size="sm">
+                      <Send className="h-4 w-4 mr-2" />
+                      Enviar
+                    </Button>
+                  </>
+                )}
+                {isEditing && (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={isSaving}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      {isSaving ? 'Guardando...' : 'Guardar'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancel}
+                      disabled={isSaving}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="p-8 prose max-w-none">
-              {proposal.content ? (
-                <div dangerouslySetInnerHTML={{ __html: proposal.content }} />
+            <div className="">
+              <NoteEditor
+                content={proposal.content || ''}
+                onChange={setEditedContent}
+                onChangeEditable={setIsEditing}
+                editable={isEditing}
+                placeholder="Escribe el contenido de la propuesta..."
+              />
+
+              {/* {isEditing ? (
+                <NoteEditor
+                  content={editedContent}
+                  onChange={setEditedContent}
+                  editable={true}
+                  placeholder="Escribe el contenido de la propuesta..."
+                />
               ) : (
-                <p className="text-muted-foreground italic text-center py-8">
-                  No hay contenido para esta propuesta.
-                </p>
-              )}
+                <div className="prose prose-invert max-w-none">
+                  {proposal.content ? (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: ensureHtmlForDisplay(proposal.content),
+                      }}
+                    />
+                  ) : (
+                    <p className="text-muted-foreground italic text-center py-8">
+                      No hay contenido para esta propuesta.
+                    </p>
+                  )}
+                </div>
+              )} */}
             </div>
           </div>
 

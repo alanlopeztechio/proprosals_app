@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Montserrat } from 'next/font/google';
 import './globals.css';
+import './editor.css';
 import { ThemeProvider } from '@/components/provider/ThemeProvider';
 import { ConvexClientProvider } from '@/components/provider/ConvexClientProvider';
 

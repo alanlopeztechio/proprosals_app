@@ -1,0 +1,158 @@
+/* Tiptap Editor Styles */
+
+.tiptap {
+  outline: none;
+}
+
+.tiptap p {
+  margin: 0.5rem 0;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.tiptap h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.tiptap strong,
+.tiptap b {
+  font-weight: bold;
+}
+
+.tiptap em,
+.tiptap i {
+  font-style: italic;
+}
+
+.tiptap del,
+.tiptap s {
+  text-decoration: line-through;
+}
+
+.tiptap code {
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.tiptap pre {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.tiptap pre code {
+  padding: 0;
+}
+
+.tiptap blockquote {
+  border-left: 4px solid;
+  padding-left: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-style: italic;
+  margin: 1rem 0;
+  opacity: 0.8;
+}
+
+.tiptap ul,
+.tiptap ol {
+  margin: 0.5rem 0;
+  margin-left: 1.5rem;
+}
+
+.tiptap li {
+  margin: 0.25rem 0;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid;
+  padding: 0.75rem;
+}
+
+.tiptap table th {
+  font-weight: bold;
+}
+
+.tiptap hr {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid;
+}
+
+.tiptap-table {
+  border-collapse: collapse;
+}
+
+.tiptap-table td,
+.tiptap-table th {
+  border: 1px solid;
+  padding: 0.75rem;
+  min-width: 6rem;
+}
+
+.tiptap-table th {
+  font-weight: bold;
+}
+
+/* Prose styles override */
+.prose strong {
+  font-weight: bold;
+}
+
+.prose b {
+  font-weight: bold;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose i {
+  font-style: italic;
+}
+
+.prose code {
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-style: normal;
+}
+
+.prose pre {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  padding: 0;
+}

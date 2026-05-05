@@ -3,16 +3,17 @@
 import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Send, FileText, X, Check } from 'lucide-react';
+import { ArrowLeft, Send, FileText, X, Check } from 'lucide-react';
 import { TableSkeleton } from '@/components/TableSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import ChatSidebar from '@/components/ChatSidebar';
 import { NoteEditor } from '@/components/editor/NoteEditor';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { marked } from 'marked';
+import { askAIAction } from './ai-action';
+import { htmlToMarkdown } from '@/lib/utils/html-to-markdown';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Borrador',
@@ -72,6 +73,7 @@ export default function ProposalViewPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isAIProcessing, setIsAIProcessing] = useState(false);
 
   const proposal = useQuery(api.queries.getProposalById, {
     id: proposalId as any,
@@ -94,17 +96,22 @@ export default function ProposalViewPage() {
     if (!proposal) return;
     setIsSaving(true);
     try {
+      const markdown = htmlToMarkdown(editedContent);
+
+      console.log('Saving proposal content:', {
+        originalLength: editedContent.length,
+        markdownLength: markdown.length,
+        preview: markdown.substring(0, 100),
+      });
+
       await uploadProporsalFile({
-        file: new TextEncoder().encode(editedContent).buffer,
+        file: new TextEncoder().encode(markdown).buffer,
         filename: `proposal-${proposal._id}.md`,
         contentType: 'text/markdown',
         idProporsal: proposal._id,
       });
-      // await updateProposal({
-      //   id: proposal._id,
-      //   content: editedContent,
-      // });
-      // setIsEditing(false);
+
+      setIsEditing(false);
     } catch (error) {
       console.error('Error updating proposal:', error);
     } finally {
@@ -114,8 +121,77 @@ export default function ProposalViewPage() {
 
   const handleCancel = useCallback(() => {
     setIsEditing(false);
-    setEditedContent('');
-  }, []);
+
+    if (proposal?.url) {
+      fetch(proposal.url)
+        .then((res) => res.text())
+        .then((content) => setEditedContent(content))
+        .catch(() => setEditedContent(proposal?.content || ''));
+    } else {
+      setEditedContent(proposal?.content || '');
+    }
+  }, [proposal]);
+
+  const handleRequestIA = useCallback(async () => {
+    if (!proposal) return;
+    setIsAIProcessing(true);
+
+    try {
+      const { text } = await askAIAction(
+        proposalId,
+        'Genera una estructura detallada y profesional para esta propuesta, incluyendo: Resumen Ejecutivo, Objetivos, Solución Propuesta y Cierre con Llamada a la Acción.',
+      );
+
+      const htmlContent = marked.parse(text, { async: false }) as string;
+
+      setEditedContent((prev) => prev + `\n\n${htmlContent}`);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAIProcessing(false);
+    }
+  }, [proposalId]);
+
+  useEffect(() => {
+    if (!proposal) return;
+
+    const loadContent = async () => {
+      try {
+        if (proposal.url) {
+          const response = await fetch(proposal.url);
+
+          console.log(
+            'Fetching proposal content from URL:',
+            proposal.url,
+            'Status:',
+            response.status,
+          );
+          if (response.ok) {
+            const content = await response.text();
+            console.log(
+              'Loaded content length:',
+              content.length,
+              'Preview:',
+              content.substring(0, 100),
+            );
+            setEditedContent(content);
+            return;
+          }
+        }
+        if (proposal.content) {
+          console.log('Using proposal.content from DB');
+          setEditedContent(proposal.content);
+        }
+      } catch (error) {
+        console.error('Error loading proposal content:', error);
+        if (proposal.content) {
+          setEditedContent(proposal.content);
+        }
+      }
+    };
+
+    loadContent();
+  }, [proposal]);
 
   if (proposal === undefined || business === undefined) {
     return (
@@ -132,9 +208,6 @@ export default function ProposalViewPage() {
           <div className="flex-1 p-6">
             <TableSkeleton />
           </div>
-        </div>
-        <div className="w-96 border-l">
-          <ChatSidebar />
         </div>
       </div>
     );
@@ -154,9 +227,6 @@ export default function ProposalViewPage() {
               Propuesta no encontrada
             </h1>
           </div>
-        </div>
-        <div className="w-96 border-l">
-          <ChatSidebar />
         </div>
       </div>
     );
@@ -288,14 +358,27 @@ export default function ProposalViewPage() {
                 )}
               </div>
             </div>
-            <div className="">
+            <div className="relative">
               <NoteEditor
-                content={proposal.content || ''}
+                content={editedContent}
                 onChange={setEditedContent}
                 onChangeEditable={setIsEditing}
                 editable={isEditing}
                 placeholder="Escribe el contenido de la propuesta..."
+                proposalId={proposalId}
+                isAILoading={isAIProcessing}
+                onRequestAI={handleRequestIA}
               />
+              {/* {isEditing && (
+                <Button
+                  onClick={handleAskAI}
+                  disabled={isAIProcessing}
+                  className="absolute bottom-6 right-6 rounded-full shadow-lg h-14 w-14 p-0 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-transform hover:scale-105"
+                  title="Preguntar a IA"
+                >
+                  <Sparkles className="h-6 w-6" />
+                </Button>
+              )} */}
 
               {/* {isEditing ? (
                 <NoteEditor
@@ -331,10 +414,6 @@ export default function ProposalViewPage() {
             </div>
           )}
         </div>
-      </div>
-
-      <div className="w-96 border-l flex flex-col h-screen sticky top-0">
-        <ChatSidebar />
       </div>
     </div>
   );

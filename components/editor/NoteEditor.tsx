@@ -35,7 +35,9 @@ import {
   Redo,
   Eye,
   PenLine,
+  Sparkles,
 } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const lowlight = createLowlight(common);
 
@@ -98,6 +100,9 @@ interface NoteEditorProps {
   editable?: boolean;
   placeholder?: string;
   onChangeEditable?: (editable: boolean) => void;
+  proposalId?: string;
+  onRequestAI?: () => void;
+  isAILoading?: boolean;
 }
 
 export function NoteEditor({
@@ -105,6 +110,9 @@ export function NoteEditor({
   onChange,
   editable = true,
   placeholder = 'Escribe tu nota aqui... Usa Markdown o la barra de herramientas.',
+  proposalId,
+  onRequestAI,
+  isAILoading,
 }: NoteEditorProps) {
   const isExternalUpdate = useRef(false);
   const [previewMode, setPreviewMode] = useState(false);
@@ -300,6 +308,17 @@ export function NoteEditor({
           className={`overflow-y-auto max-h-[60vh] p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent ${editable ? 'preview-active' : 'edit-active'}`}
         />
       </div>
+
+      {editable && proposalId && (
+        <Button
+          onClick={onRequestAI}
+          disabled={isAILoading}
+          className="absolute bottom-6 right-6 rounded-full shadow-lg h-14 w-14 p-0 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-transform hover:scale-105"
+          title="Preguntar a IA"
+        >
+          <Sparkles className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   );
 }

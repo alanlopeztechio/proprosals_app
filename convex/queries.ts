@@ -54,11 +54,25 @@ export const getProposalById = query({
 });
 
 export const getProposalsByBusiness = query({
-  args: { businessId: v.id('businesses') },
+  args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query('proposals')
-      .withIndex('by_business', (q) => q.eq('businessId', args.businessId))
+      .query("proposals")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
       .collect();
+  },
+});
+
+export const getProposalContext = query({
+  args: { proposalId: v.id("proposals") },
+  handler: async (ctx, args) => {
+    const proposal = await ctx.db.get(args.proposalId);
+    if (!proposal) return null;
+
+    const business = await ctx.db.get(proposal.businessId);
+    if (!business) return { proposal, business: null, client: null };
+
+    const client = await ctx.db.get(business.clientId);
+    return { proposal, business, client };
   },
 });

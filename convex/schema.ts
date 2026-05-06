@@ -32,13 +32,13 @@ export default defineSchema({
     ),
     value: v.number(),
     currency: v.string(),
-    probability: v.optional(v.number()), // 0-100
-    expectedCloseDate: v.optional(v.number()), // Timestamp
+    probability: v.optional(v.number()),
+    expectedCloseDate: v.optional(v.number()),
   }).index('by_client', ['clientId']),
 
   proposals: defineTable({
     businessId: v.id('businesses'),
-    proposalNumber: v.string(), // e.g., PROP-001
+    proposalNumber: v.string(),
     title: v.string(),
     status: v.union(
       v.literal('draft'),
@@ -49,8 +49,8 @@ export default defineSchema({
       v.literal('expired'),
     ),
     totalAmount: v.number(),
-    validUntil: v.number(), // Timestamp
-    content: v.optional(v.string()), // Markdown o JSON de la propuesta
+    validUntil: v.number(),
+    content: v.optional(v.string()),
     terms: v.optional(v.string()),
     url: v.optional(v.string()),
   }).index('by_business', ['businessId']),

@@ -38,6 +38,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import PopUp from './PopUp';
 
 const lowlight = createLowlight(common);
 
@@ -309,16 +310,7 @@ export function NoteEditor({
         />
       </div>
 
-      {editable && proposalId && (
-        <Button
-          onClick={onRequestAI}
-          disabled={isAILoading}
-          className="absolute bottom-6 right-6 rounded-full shadow-lg h-14 w-14 p-0 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-transform hover:scale-105"
-          title="Preguntar a IA"
-        >
-          <Sparkles className="h-6 w-6" />
-        </Button>
-      )}
+      {editable && proposalId && <PopUp />}
     </div>
   );
 }

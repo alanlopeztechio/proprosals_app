@@ -133,6 +133,9 @@ export default function ProposalViewPage() {
   }, [proposal]);
 
   const handleRequestIA = useCallback(async () => {
+    alert(
+      'La IA está generando contenido para esta propuesta. Esto puede tardar unos momentos, por favor espera...',
+    );
     if (!proposal) return;
     setIsAIProcessing(true);
 
@@ -146,6 +149,7 @@ export default function ProposalViewPage() {
 
       setEditedContent((prev) => prev + `\n\n${htmlContent}`);
     } catch (e) {
+      alert(e);
       console.error(e);
     } finally {
       setIsAIProcessing(false);

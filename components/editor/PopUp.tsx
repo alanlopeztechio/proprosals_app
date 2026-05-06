@@ -123,7 +123,8 @@ export default function PopUp() {
         )}
       </AnimatePresence>
 
-      <motion.button // onClick={onRequestAI}
+      <motion.button
+        // onClick={onRequestAI}
         // disabled={isAILoading}
         onClick={() => {
           setIsOpen(!isOpen);

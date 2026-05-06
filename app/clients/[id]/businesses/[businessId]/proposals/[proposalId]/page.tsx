@@ -14,6 +14,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { marked } from 'marked';
 import { askAIAction } from './ai-action';
 import { htmlToMarkdown } from '@/lib/utils/html-to-markdown';
+import { motion, Transition } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Borrador',
@@ -74,6 +76,7 @@ export default function ProposalViewPage() {
   const [editedContent, setEditedContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isAIProcessing, setIsAIProcessing] = useState(false);
+  const [isOn, setIsOn] = useState(true);
 
   const proposal = useQuery(api.queries.getProposalById, {
     id: proposalId as any,

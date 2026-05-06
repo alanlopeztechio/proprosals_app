@@ -19,6 +19,7 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
+import { Selection } from '@tiptap/extensions';
 import { marked } from 'marked';
 import {
   Bold,
@@ -33,11 +34,7 @@ import {
   Minus,
   Undo,
   Redo,
-  Eye,
-  PenLine,
-  Sparkles,
 } from 'lucide-react';
-import { Button } from '../ui/button';
 import PopUp from './PopUp';
 
 const lowlight = createLowlight(common);
@@ -148,6 +145,9 @@ export function NoteEditor({
       TableHeader,
       Placeholder.configure({
         placeholder,
+      }),
+      Selection.configure({
+        className: 'bg-primary/10 outline-primary',
       }),
       CodeBlockLowlight.configure({ lowlight }).extend({
         addNodeView() {
@@ -303,14 +303,16 @@ export function NoteEditor({
           {previewMode && <div className="flex-1" />}
         </div>
       )}
-      <div className="bg-background">
-        <EditorContent
-          editor={editor}
-          className={`overflow-y-auto max-h-[60vh] p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent ${editable ? 'preview-active' : 'edit-active'}`}
-        />
-      </div>
+      <div className="flex relative bg-background min-h-[60vh]">
+        <div className="flex-1 w-full relative">
+          <EditorContent
+            editor={editor}
+            className={`overflow-y-auto absolute inset-0 p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent ${editable ? 'preview-active' : 'edit-active'}`}
+          />
+        </div>
 
-      {editable && proposalId && <PopUp />}
+        {editable && proposalId && <PopUp />}
+      </div>
     </div>
   );
 }
